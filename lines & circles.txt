@@ -1,0 +1,36 @@
+function line(x0, x1, y0, y1)
+	byte deltax := x1 - x0		; 0..255
+	byte deltay := y1 - y0		; 0..255
+	byte error := 0				; 0..255
+
+	if (deltax == 0) deltaerr := 128
+	else byte deltaerr := LSB ((128 * deltay) / deltax) & 0b01111111
+
+	int y := y0
+	for x from x0 to x1
+		plot(x,y)
+		error := error + deltaerr
+		if error ≥ 64 then
+			y := y + 1
+			error := error - 128
+
+function DrawCircle(int x0, int y0, int radius)
+	int x = radius;
+	int y = 0;
+	int radiusError = 1-x;
+
+	while(x >= y)
+		DrawPixel(x + x0, y + y0);
+		DrawPixel(y + x0, x + y0);
+		DrawPixel(-x + x0, y + y0);
+		DrawPixel(-y + x0, x + y0);
+		DrawPixel(-x + x0, -y + y0);
+		DrawPixel(-y + x0, -x + y0);
+		DrawPixel(x + x0, -y + y0);
+		DrawPixel(y + x0, -x + y0);
+		y++;
+		if (radiusError<0)
+			radiusError += 2 * y + 1;
+		else
+			x--;
+			radiusError += 2 * (y - x + 1);
