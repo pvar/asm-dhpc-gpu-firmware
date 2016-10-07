@@ -166,9 +166,9 @@ print_char:
 	ldi ZL, low(fontdata*2)
 
 	subi tmp1, 32			; subtract 32 from ASCII code -- font table begins from character code 32
-
 	ldi tmp2, 10			; each character is described by 10 bytes
 	mul tmp1, tmp2			; multiply by 10, to get offset in font-table
+	add ZL, r0				; add offset to pointer
 	adc ZH, r1				;
 
 	ldi tmp1, 10			; set high-byte of address in frame buffer

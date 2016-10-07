@@ -12,7 +12,6 @@ wait_frame:
 	rjmp wait_frame
 ret
 
-
 ; -----------------------------------------------------------------------------
 ;   wait for a character from CPU
 ; -----------------------------------------------------------------------------
@@ -87,30 +86,37 @@ putchar:
 	brlo control_char
 
 	sbrs status, 6				; check cursor_flag bit
-	rjmp cursorless				;
+	rjmp print_pchar_nocur      ;
 
-	; PRINT CHARACTER
-	; (WHEN CURSOR IS ACTIVATED)
+; PRINTABLE CHARACTER / CURSOR ACTIVATED
+print_pchar_cur:
 	clr_cur						; delete cursor (if visible)
 	mov tmp1, data				; print sent character
 	call print_char				; print received character
 	call right					; move cursor to the right
 	set_cur						; reinit cursor state
 ret
-
-cursorless:
-	; PRINT CHARACTER
-	; (WHEN CURSOR IS DEACTIVATED)
+; PRINTABLE CHARACTER / CURSOR DEACTIVATED
+print_pchar_nocur:
 	mov tmp1, data				; print sent character
 	call print_char				; print received character
 	call right					; move cursor to the right
 ret
 
-control_char: ; CHECK CURSOR STATE!
+control_char:
+	sbrs status, 6				; check cursor_flag bit
+	rjmp print_cchar_nocur      ;
+
+; CONTROL CHARACTER / CURSOR ACTIVATED
+print_cchar_cur:
 	clr_cur						; delete cursor (if visible)
 	call print_ctrl				; print control character
 	set_cur						; reinit cursor state
-	rjmp main_loop
+ret
+
+; CONTROL CHARACTER / CURSOR DEACTIVATED
+print_cchar_nocur:
+	call print_ctrl				; print control character
 ret
 
 ; -----------------------------------------------------------------------------
@@ -124,18 +130,15 @@ pset:
 	call pixel					; draw pixel
 ret
 
-
 ; -----------------------------------------------------------------------------
 line:
 ; not implemented!
 ret
 
-
 ; -----------------------------------------------------------------------------
 box:
 ; not implemented!
 ret
-
 
 ; -----------------------------------------------------------------------------
 locate:
